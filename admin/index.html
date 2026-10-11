@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://api.github.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.github.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:">
 <title>TG Auto Poster Admin</title>
 <style>
 :root {
@@ -114,15 +114,15 @@ code { background: var(--surface2); padding: 1px 5px; border-radius: 4px; }
   <!-- Log in -->
   <section id="loginView" class="login card pad hidden">
     <h1>Admin log in</h1>
-    <p class="muted">Only you can open this page. Your key stays in this browser and is sent only to GitHub.</p>
+    <p class="muted">Manage who can use TG Auto Poster.</p>
     <form id="loginForm">
-      <label class="field" for="repo">Data repository</label>
-      <input id="repo" type="text" placeholder="your-name/tg-auto-poster-data" autocomplete="off" required>
-      <label class="field" for="token">GitHub access key</label>
-      <input id="token" type="password" placeholder="github_pat_…" autocomplete="off" required>
-      <p class="small">Make one at GitHub → Settings → Developer settings → Fine-grained tokens. Give it access to the data repository only, with <b>Contents: Read and write</b> and <b>Actions: Read</b>.</p>
+      <label class="field" for="adminId">Admin ID</label>
+      <input id="adminId" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+      <label class="field" for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <label class="row" style="margin-top:12px;font-weight:400"><input id="remember" type="checkbox"> Keep me logged in on this device</label>
       <p id="loginError" class="error hidden"></p>
-      <div class="dialog-actions"><button class="btn primary" type="submit">Log in</button></div>
+      <div class="dialog-actions"><button class="btn primary" type="submit" id="loginBtn">Log in</button></div>
     </form>
   </section>
 
@@ -213,8 +213,28 @@ code { background: var(--surface2); padding: 1px 5px; border-radius: 4px; }
     <input id="sMinVersion" type="text" placeholder="1.0.0">
     <p class="small">Older apps show an "update available" note.</p>
     <div class="dialog-actions">
+      <button class="btn" type="button" id="passwordBtn" style="margin-right:auto">Change admin password</button>
       <button class="btn" type="button" data-close>Cancel</button>
       <button class="btn primary" type="submit">Save settings</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Change password -->
+<dialog id="passwordDialog">
+  <form id="passwordForm" method="dialog">
+    <h2>Change admin password</h2>
+    <p class="small">Use at least 10 characters. A few words with a number is easy to remember and hard to guess.</p>
+    <label class="field" for="newId">Admin ID</label>
+    <input id="newId" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+    <label class="field" for="newPassword">New password</label>
+    <input id="newPassword" type="password" autocomplete="new-password" required>
+    <label class="field" for="newPassword2">New password again</label>
+    <input id="newPassword2" type="password" autocomplete="new-password" required>
+    <p id="passwordError" class="error hidden"></p>
+    <div class="dialog-actions">
+      <button class="btn" type="button" data-close>Cancel</button>
+      <button class="btn primary" type="submit" id="passwordSave">Change password</button>
     </div>
   </form>
 </dialog>
@@ -234,18 +254,79 @@ const COUNTRIES = [
 ];
 
 const $ = (id) => document.getElementById(id);
+const SITE_REPO = "Myself7802/tg-auto-poster-site";
+const VAULT_PATH = "admin/vault.json";
+// The unlocked key lives only in this tab (or this device, if "keep me logged in" was ticked).
 const store = {
-  get(key) { try { return localStorage.getItem(key) || ""; } catch { return ""; } },
-  set(key, value) { try { localStorage.setItem(key, value); } catch { /* private window: keep in memory only */ } },
-  clear() { try { localStorage.removeItem("tgap.token"); } catch { } }
+  get() {
+    try { return sessionStorage.getItem("tgap.session") || localStorage.getItem("tgap.session") || ""; } catch { return ""; }
+  },
+  set(value, remember) {
+    try {
+      sessionStorage.setItem("tgap.session", value);
+      if (remember) localStorage.setItem("tgap.session", value);
+    } catch { /* private window: keep in memory only */ }
+  },
+  clear() {
+    try {
+      sessionStorage.removeItem("tgap.session");
+      localStorage.removeItem("tgap.session");
+      localStorage.removeItem("tgap.token");
+      localStorage.removeItem("tgap.repo");
+    } catch { }
+  }
 };
-let token = store.get("tgap.token");
-let repo = store.get("tgap.repo") || DEFAULT_REPO;
+let session = {};
+try { session = JSON.parse(store.get() || "{}"); } catch { session = {}; }
+let token = session.token || "";
+let repo = session.repo || DEFAULT_REPO;
+let adminId = session.id || "";
 let data = { settings: {}, users: [] };
 let sha = null;
 let filter = "all";
 let editingId = null;
 let pollTimer = null;
+
+// ----- the locked key (vault) ----------------------------------------------
+
+const bytesFrom64 = (text) => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
+const bytesTo64 = (bytes) => btoa(String.fromCharCode(...bytes));
+
+async function vaultKey(id, password, salt, iterations) {
+  const encoder = new TextEncoder();
+  const idBytes = encoder.encode(id.trim().toLowerCase());
+  const fullSalt = new Uint8Array(salt.length + idBytes.length);
+  fullSalt.set(salt);
+  fullSalt.set(idBytes, salt.length);
+  const base = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: fullSalt, iterations, hash: "SHA-256" },
+    base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
+  );
+}
+
+async function openVault(vault, id, password) {
+  const key = await vaultKey(id, password, bytesFrom64(vault.salt), vault.iterations);
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: bytesFrom64(vault.iv) }, key, bytesFrom64(vault.data));
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+
+async function sealVault(id, password, secret) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const iterations = 600000;
+  const key = await vaultKey(id, password, salt, iterations);
+  const data = new Uint8Array(await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(secret))
+  ));
+  return { version: 1, kdf: "PBKDF2-SHA256", iterations, salt: bytesTo64(salt), iv: bytesTo64(iv), data: bytesTo64(data) };
+}
+
+async function fetchVault() {
+  const response = await fetch(`vault.json?t=${Date.now()}`, { cache: "no-store" });
+  if (!response.ok) throw new Error("vault missing");
+  return response.json();
+}
 
 // ----- GitHub -------------------------------------------------------------
 
@@ -623,7 +704,7 @@ function showLogin(message) {
   $("loginView").classList.remove("hidden");
   $("mainView").classList.add("hidden");
   ["settingsBtn", "logoutBtn", "publish"].forEach((id) => $(id).classList.add("hidden"));
-  $("repo").value = repo;
+  $("adminId").value = adminId;
   const box = $("loginError");
   box.textContent = message || "";
   box.classList.toggle("hidden", !message);
@@ -633,9 +714,15 @@ async function enter() {
   try {
     await load();
   } catch (error) {
-    showLogin(error.status === 401 || error.status === 403 || error.status === 404
-      ? "GitHub did not accept that key or repository. Check both, and that the key can read the repository."
-      : "Could not reach GitHub. Check your internet and try again.");
+    if (error.status === 401) {
+      store.clear();
+      token = "";
+      showLogin("The admin key inside this login has expired or was removed on GitHub. Ask your developer to renew it.");
+    } else if (error.status === 403 || error.status === 404) {
+      showLogin("The admin key cannot open the customer list any more. Ask your developer to check its permissions.");
+    } else {
+      showLogin("Could not reach GitHub. Check your internet and try again.");
+    }
     return;
   }
   $("loginView").classList.add("hidden");
@@ -646,15 +733,73 @@ async function enter() {
 }
 
 $("uCode").append(...COUNTRIES.map(([name, code]) => el("option", { value: code, text: `${name} (${code})` })));
-$("loginForm").addEventListener("submit", (event) => {
+$("loginForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-  repo = $("repo").value.trim().replace(/^https:\/\/github\.com\//, "").replace(/\/$/, "");
-  token = $("token").value.trim();
-  store.set("tgap.repo", repo);
-  store.set("tgap.token", token);
-  enter();
+  const button = $("loginBtn");
+  const box = $("loginError");
+  const id = $("adminId").value.trim();
+  const password = $("password").value;
+  button.disabled = true;
+  button.textContent = "Checking…";
+  box.classList.add("hidden");
+  try {
+    const secret = await openVault(await fetchVault(), id, password);
+    token = secret.token;
+    repo = secret.repo || DEFAULT_REPO;
+    adminId = id;
+    store.set(JSON.stringify({ token, repo, id }), $("remember").checked);
+    $("password").value = "";
+    await enter();
+  } catch (error) {
+    box.textContent = error && error.message === "vault missing"
+      ? "The login is not set up yet. Ask your developer."
+      : "Wrong Admin ID or password.";
+    box.classList.remove("hidden");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Log in";
+  }
 });
 $("logoutBtn").addEventListener("click", () => { store.clear(); token = ""; showLogin(); });
+$("passwordBtn").addEventListener("click", () => {
+  $("settingsDialog").close();
+  $("newId").value = adminId;
+  $("newPassword").value = "";
+  $("newPassword2").value = "";
+  $("passwordError").classList.add("hidden");
+  $("passwordDialog").showModal();
+});
+$("passwordForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const box = $("passwordError");
+  const id = $("newId").value.trim();
+  const password = $("newPassword").value;
+  const show = (text) => { box.textContent = text; box.classList.remove("hidden"); };
+  if (id.length < 3) return show("Use an Admin ID of at least 3 characters.");
+  if (password.length < 10) return show("Use a password of at least 10 characters.");
+  if (password !== $("newPassword2").value) return show("The two passwords are not the same.");
+  const button = $("passwordSave");
+  button.disabled = true;
+  button.textContent = "Saving…";
+  try {
+    const vault = await sealVault(id, password, { token, repo });
+    let current = null;
+    try { current = await gh(`/repos/${SITE_REPO}/contents/${VAULT_PATH}`); } catch { current = null; }
+    const body = { message: "Change admin password", content: toBase64(JSON.stringify(vault, null, 1) + "\n") };
+    if (current) body.sha = current.sha;
+    await gh(`/repos/${SITE_REPO}/contents/${VAULT_PATH}`, { method: "PUT", body: JSON.stringify(body) });
+    adminId = id;
+    store.set(JSON.stringify({ token, repo, id }), false);
+    $("passwordDialog").close();
+    toast("Password changed. Use the new one from your next login (it is live in about a minute).");
+  } catch (error) {
+    show("Could not save the new password. " + (error.status === 403 || error.status === 404
+      ? "The admin key is not allowed to change the website." : "Check your internet and try again."));
+  } finally {
+    button.disabled = false;
+    button.textContent = "Change password";
+  }
+});
 $("addBtn").addEventListener("click", () => openUser(null));
 $("settingsBtn").addEventListener("click", openSettings);
 $("userForm").addEventListener("submit", submitUser);
