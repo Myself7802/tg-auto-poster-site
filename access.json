@@ -1,0 +1,14 @@
+{
+ "payload": {
+  "version": 1,
+  "generated_at": "2026-10-11T07:39:17+00:00",
+  "timezone": "Asia/Kolkata",
+  "salt": "1feaca1477c34f9acb979c4c50308da9",
+  "iterations": 200000,
+  "support": "",
+  "message": "",
+  "min_version": "",
+  "users": {}
+ },
+ "signature": "m5Blu2VfKEvr8x7HvPfP3cXmdUxZ0D9bo/JP8sBaxi0XminVOIjfabOmmliS8eMsc9nf6sEEifBMNsdu3ag6Cg=="
+}
