@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://api.github.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:">
+<title>TG Auto Poster Admin</title>
+<style>
+:root {
+  --bg: #F4F6FA; --surface: #FFFFFF; --surface2: #F8FAFC; --border: #E3E8EF; --border-strong: #CBD3DE;
+  --text: #0F172A; --text2: #334155; --muted: #64748B; --faint: #94A3B8;
+  --primary: #1F6FB2; --primary-hover: #195C94; --primary-soft: #E7F0FA;
+  --danger: #B42318; --danger-soft: #FEF0EE; --ok: #067647; --ok-soft: #ECFDF3; --warn: #B54708; --warn-soft: #FFFAEB;
+  --shadow: 0 1px 2px rgba(15, 23, 42, .06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0F141B; --surface: #161D27; --surface2: #1C2531; --border: #263142; --border-strong: #34425A;
+    --text: #E6EDF5; --text2: #C3CEDB; --muted: #8A99AD; --faint: #5F6E82;
+    --primary: #3B8EDB; --primary-hover: #4A9BE6; --primary-soft: #17304A;
+    --danger: #F97066; --danger-soft: #3B1C1C; --ok: #47CD89; --ok-soft: #10301F; --warn: #FDB022; --warn-soft: #33270F;
+    --shadow: none;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.hidden { display: none !important; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
+header.top { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.logo { width: 36px; height: 36px; border-radius: 9px; background: var(--primary); display: grid; place-items: center; flex: none; }
+.brand { font-weight: 700; font-size: 17px; }
+.brand small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.spacer { flex: 1; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+.pad { padding: 20px; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 15px; margin: 0 0 4px; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; color: var(--muted); }
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-strong); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--surface2); }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+.btn.primary:hover { background: var(--primary-hover); }
+.btn.danger { color: var(--danger); }
+.btn.danger:hover { background: var(--danger-soft); border-color: var(--danger); }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn.ghost:hover { background: var(--surface2); }
+.btn.sm { padding: 4px 10px; font-size: 13px; }
+input[type=text], input[type=password], input[type=date], input[type=tel], select, textarea {
+  width: 100%; border: 1px solid var(--border-strong); background: var(--surface); border-radius: 8px; padding: 8px 10px; min-height: 38px;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-soft); border-color: var(--primary); }
+label.field { display: block; font-weight: 600; color: var(--text2); margin: 12px 0 4px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat { padding: 14px 16px; }
+.stat b { display: block; font-size: 24px; }
+.toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.toolbar input { flex: 1; min-width: 200px; }
+.segments { display: inline-flex; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+.segments button { border: 1px solid transparent; background: transparent; border-radius: 7px; padding: 5px 12px; cursor: pointer; color: var(--text2); }
+.segments button.on { background: var(--surface); border-color: var(--border); color: var(--primary); font-weight: 600; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; padding: 10px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.badge.active { background: var(--ok-soft); color: var(--ok); }
+.badge.ending { background: var(--warn-soft); color: var(--warn); }
+.badge.expired, .badge.blocked { background: var(--danger-soft); color: var(--danger); }
+.actions { display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; }
+.empty { text-align: center; padding: 48px 16px; color: var(--muted); }
+.status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 4px; background: var(--faint); display: inline-block; }
+.dot.ok { background: var(--ok); } .dot.busy { background: var(--warn); } .dot.bad { background: var(--danger); }
+dialog { border: 1px solid var(--border); border-radius: 14px; padding: 0; background: var(--surface); color: var(--text); width: min(520px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgba(15, 23, 42, .45); }
+dialog form { padding: 22px; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.chips button { border: 1px solid var(--border); background: var(--surface2); border-radius: 14px; padding: 3px 12px; cursor: pointer; font-size: 13px; }
+.chips button:hover { border-color: var(--primary); color: var(--primary); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 10px; z-index: 50; max-width: calc(100vw - 32px); }
+.error { color: var(--danger); }
+.login { max-width: 460px; margin: 8vh auto 0; }
+code { background: var(--surface2); padding: 1px 5px; border-radius: 4px; }
+@media (max-width: 760px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  thead { display: none; }
+  table, tbody, tr, td { display: block; width: 100%; }
+  tr { border-bottom: 1px solid var(--border); padding: 8px 4px; }
+  td { border: none; padding: 4px 12px; }
+  td[data-label]::before { content: attr(data-label) ": "; color: var(--muted); font-size: 12px; }
+  .actions { justify-content: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M3 12.5 20 4l-3.5 16-5-6.5L3 12.5Z"/></svg>
+    </div>
+    <div class="brand">TG Auto Poster<small>Admin</small></div>
+    <div class="spacer"></div>
+    <span id="publish" class="status-pill hidden"><span class="dot"></span><span>Checking…</span></span>
+    <button id="settingsBtn" class="btn hidden" type="button">Settings</button>
+    <button id="logoutBtn" class="btn ghost hidden" type="button">Log out</button>
+  </header>
+
+  <!-- Log in -->
+  <section id="loginView" class="login card pad hidden">
+    <h1>Admin log in</h1>
+    <p class="muted">Only you can open this page. Your key stays in this browser and is sent only to GitHub.</p>
+    <form id="loginForm">
+      <label class="field" for="repo">Data repository</label>
+      <input id="repo" type="text" placeholder="your-name/tg-auto-poster-data" autocomplete="off" required>
+      <label class="field" for="token">GitHub access key</label>
+      <input id="token" type="password" placeholder="github_pat_…" autocomplete="off" required>
+      <p class="small">Make one at GitHub → Settings → Developer settings → Fine-grained tokens. Give it access to the data repository only, with <b>Contents: Read and write</b> and <b>Actions: Read</b>.</p>
+      <p id="loginError" class="error hidden"></p>
+      <div class="dialog-actions"><button class="btn primary" type="submit">Log in</button></div>
+    </form>
+  </section>
+
+  <!-- Users -->
+  <section id="mainView" class="hidden">
+    <div class="row" style="margin-bottom:16px">
+      <div style="flex:1">
+        <h1>Customers</h1>
+        <div class="muted">Only these phone numbers can log in to TG Auto Poster. Changes reach the app within about 10 minutes.</div>
+      </div>
+      <button id="addBtn" class="btn primary" type="button">+ Add number</button>
+    </div>
+    <div class="stats">
+      <div class="card stat"><span class="small">Active</span><b id="sActive">0</b></div>
+      <div class="card stat"><span class="small">Ending in 7 days</span><b id="sEnding">0</b></div>
+      <div class="card stat"><span class="small">Ended</span><b id="sExpired">0</b></div>
+      <div class="card stat"><span class="small">Blocked</span><b id="sBlocked">0</b></div>
+    </div>
+    <div class="toolbar">
+      <input id="search" type="text" placeholder="Search name, number, or note">
+      <div class="segments" id="filters">
+        <button type="button" data-f="all" class="on">All</button>
+        <button type="button" data-f="active">Active</button>
+        <button type="button" data-f="ending">Ending soon</button>
+        <button type="button" data-f="expired">Ended</button>
+        <button type="button" data-f="blocked">Blocked</button>
+      </div>
+    </div>
+    <div class="card" style="overflow:hidden">
+      <table>
+        <thead><tr><th>Name</th><th>Phone</th><th>Plan</th><th>Access until</th><th>Status</th><th>Note</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div id="empty" class="empty hidden"></div>
+    </div>
+  </section>
+</div>
+
+<!-- Add / edit -->
+<dialog id="userDialog">
+  <form id="userForm" method="dialog">
+    <h2 id="userTitle">Add number</h2>
+    <p class="small">This person can log in to TG Auto Poster with this Telegram number.</p>
+    <label class="field" for="uName">Name</label>
+    <input id="uName" type="text" placeholder="Shop or person name" required>
+    <label class="field" for="uNumber">Telegram phone number</label>
+    <div class="row" style="flex-wrap:nowrap">
+      <select id="uCode" style="width:150px;flex:none"></select>
+      <input id="uNumber" type="tel" placeholder="98765 43210" required>
+    </div>
+    <label class="field" for="uPlan">Plan</label>
+    <select id="uPlan">
+      <option>Free</option><option>Basic</option><option selected>Pro</option><option>Trial</option>
+    </select>
+    <label class="field" for="uUntil">Access until</label>
+    <div class="row" style="flex-wrap:nowrap">
+      <input id="uUntil" type="date">
+      <label class="row" style="flex:none;font-weight:400"><input id="uForever" type="checkbox"> No end date</label>
+    </div>
+    <div class="chips">
+      <button type="button" data-add="7d">7 days</button>
+      <button type="button" data-add="1m">1 month</button>
+      <button type="button" data-add="3m">3 months</button>
+      <button type="button" data-add="6m">6 months</button>
+      <button type="button" data-add="1y">1 year</button>
+    </div>
+    <label class="field" for="uNote">Note (only you see this)</label>
+    <input id="uNote" type="text" placeholder="For example: friend, paid in cash, trial">
+    <p id="userError" class="error hidden"></p>
+    <div class="dialog-actions">
+      <button class="btn" type="button" data-close>Cancel</button>
+      <button class="btn primary" type="submit" id="userSave">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Settings -->
+<dialog id="settingsDialog">
+  <form id="settingsForm" method="dialog">
+    <h2>Settings</h2>
+    <label class="field" for="sSupport">Your contact for customers</label>
+    <input id="sSupport" type="text" placeholder="WhatsApp 98765 43210">
+    <p class="small">Shown when a number is not activated or access has ended.</p>
+    <label class="field" for="sMessage">Message to show in everyone's app</label>
+    <textarea id="sMessage" rows="3" placeholder="For example: New version available, or Diwali offer"></textarea>
+    <p class="small">Leave empty to show nothing.</p>
+    <label class="field" for="sMinVersion">Minimum app version (optional)</label>
+    <input id="sMinVersion" type="text" placeholder="1.0.0">
+    <p class="small">Older apps show an "update available" note.</p>
+    <div class="dialog-actions">
+      <button class="btn" type="button" data-close>Cancel</button>
+      <button class="btn primary" type="submit">Save settings</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script>
+"use strict";
+// Filled in when the admin site is set up; the login form can change it.
+const DEFAULT_REPO = "Myself7802/tg-auto-poster-data";
+const FILE = "users.json";
+const WORKFLOW = "publish.yml";
+const COUNTRIES = [
+  ["India", "+91"], ["UAE", "+971"], ["USA / Canada", "+1"], ["UK", "+44"], ["Singapore", "+65"], ["Nepal", "+977"],
+  ["Bangladesh", "+880"], ["Sri Lanka", "+94"], ["Pakistan", "+92"], ["Australia", "+61"], ["Saudi Arabia", "+966"],
+  ["Qatar", "+974"], ["Kuwait", "+965"], ["Oman", "+968"]
+];
+
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(key) { try { return localStorage.getItem(key) || ""; } catch { return ""; } },
+  set(key, value) { try { localStorage.setItem(key, value); } catch { /* private window: keep in memory only */ } },
+  clear() { try { localStorage.removeItem("tgap.token"); } catch { } }
+};
+let token = store.get("tgap.token");
+let repo = store.get("tgap.repo") || DEFAULT_REPO;
+let data = { settings: {}, users: [] };
+let sha = null;
+let filter = "all";
+let editingId = null;
+let pollTimer = null;
+
+// ----- GitHub -------------------------------------------------------------
+
+async function gh(path, options = {}) {
+  const response = await fetch("https://api.github.com" + path, {
+    ...options,
+    headers: {
+      "Accept": "application/vnd.github+json",
+      "Authorization": "Bearer " + token,
+      "X-GitHub-Api-Version": "2022-11-28",
+      ...(options.body ? { "Content-Type": "application/json" } : {})
+    }
+  });
+  if (!response.ok) {
+    const error = new Error("GitHub said " + response.status);
+    error.status = response.status;
+    throw error;
+  }
+  return response.status === 204 ? null : response.json();
+}
+
+function toBase64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  bytes.forEach((b) => { binary += String.fromCharCode(b); });
+  return btoa(binary);
+}
+
+function fromBase64(text) {
+  const binary = atob(text.replace(/\n/g, ""));
+  return new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0)));
+}
+
+async function load() {
+  try {
+    const file = await gh(`/repos/${repo}/contents/${FILE}`);
+    data = JSON.parse(fromBase64(file.content));
+    sha = file.sha;
+  } catch (error) {
+    if (error.status !== 404) throw error;
+    data = { settings: { timezone: "Asia/Kolkata" }, users: [] };
+    sha = null;
+  }
+  data.settings = data.settings || {};
+  data.users = data.users || [];
+}
+
+async function save(message) {
+  const body = { message, content: toBase64(JSON.stringify(data, null, 2) + "\n") };
+  if (sha) body.sha = sha;
+  try {
+    const result = await gh(`/repos/${repo}/contents/${FILE}`, { method: "PUT", body: JSON.stringify(body) });
+    sha = result.content.sha;
+  } catch (error) {
+    if (error.status === 409 || error.status === 422) {
+      await load();
+      render();
+      throw new Error("The list was changed somewhere else. It has been reloaded; please make your change again.");
+    }
+    throw error;
+  }
+  toast("Saved. The app will see it within about 10 minutes.");
+  watchPublish();
+}
+
+async function publishStatus() {
+  const pill = $("publish");
+  pill.classList.remove("hidden");
+  const dot = pill.querySelector(".dot");
+  const text = pill.querySelector("span:last-child");
+  try {
+    const result = await gh(`/repos/${repo}/actions/workflows/${WORKFLOW}/runs?per_page=1`);
+    const run = result.workflow_runs && result.workflow_runs[0];
+    if (!run) { dot.className = "dot"; text.textContent = "Not published yet"; return "none"; }
+    if (run.status !== "completed") { dot.className = "dot busy"; text.textContent = "Publishing…"; return "busy"; }
+    const when = new Date(run.updated_at).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+    if (run.conclusion === "success") { dot.className = "dot ok"; text.textContent = "Published " + when; return "ok"; }
+    dot.className = "dot bad";
+    text.innerHTML = "";
+    const link = document.createElement("a");
+    link.href = run.html_url; link.target = "_blank"; link.rel = "noopener"; link.textContent = "Publish failed — open details";
+    text.appendChild(link);
+    return "bad";
+  } catch {
+    dot.className = "dot"; text.textContent = "Publish status unknown";
+    return "unknown";
+  }
+}
+
+function watchPublish() {
+  clearInterval(pollTimer);
+  let tries = 0;
+  setTimeout(publishStatus, 4000);
+  pollTimer = setInterval(async () => {
+    tries += 1;
+    const state = await publishStatus();
+    if ((state !== "busy" && tries > 2) || tries > 24) clearInterval(pollTimer);
+  }, 8000);
+}
+
+// ----- helpers ------------------------------------------------------------
+
+function today() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+function isoDate(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+function parseDate(text) {
+  if (!text) return null;
+  const [y, m, d] = text.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+function addPeriod(fromText, code) {
+  const base = parseDate(fromText);
+  const start = base && base >= today() ? base : today();
+  const next = new Date(start);
+  const amount = parseInt(code, 10);
+  if (code.endsWith("d")) next.setDate(next.getDate() + amount);
+  if (code.endsWith("m")) next.setMonth(next.getMonth() + amount);
+  if (code.endsWith("y")) next.setFullYear(next.getFullYear() + amount);
+  return isoDate(next);
+}
+function daysLeft(until) {
+  const end = parseDate(until);
+  if (!end) return null;
+  return Math.round((end - today()) / 86400000);
+}
+function statusOf(user) {
+  if (user.status === "blocked") return "blocked";
+  const left = daysLeft(user.until);
+  if (left === null) return "active";
+  if (left < 0) return "expired";
+  if (left <= 7) return "ending";
+  return "active";
+}
+const STATUS_TEXT = { active: "Active", ending: "Ending soon", expired: "Ended", blocked: "Blocked" };
+function normalize(code, number) {
+  let digits = (number || "").replace(/\D/g, "").replace(/^0+/, "");
+  const codeDigits = (code || "").replace(/\D/g, "");
+  if (digits.startsWith(codeDigits) && digits.length > codeDigits.length + 6) digits = digits.slice(codeDigits.length);
+  return "+" + codeDigits + digits;
+}
+function prettyPhone(phone) {
+  const match = /^\+91(\d{5})(\d{5})$/.exec(phone || "");
+  if (match) return `+91 ${match[1]} ${match[2]}`;
+  return phone || "";
+}
+function prettyDate(text) {
+  const date = parseDate(text);
+  return date ? date.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short", year: "numeric" }) : "";
+}
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  Object.entries(props).forEach(([key, value]) => {
+    if (key === "class") node.className = value;
+    else if (key === "text") node.textContent = value;
+    else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+    else node.setAttribute(key, value);
+  });
+  children.forEach((child) => node.appendChild(typeof child === "string" ? document.createTextNode(child) : child));
+  return node;
+}
+function toast(text) {
+  const box = $("toast");
+  box.textContent = text;
+  box.classList.remove("hidden");
+  clearTimeout(box._timer);
+  box._timer = setTimeout(() => box.classList.add("hidden"), 4500);
+}
+function busy(button, on) {
+  if (!button) return;
+  button.disabled = on;
+}
+
+// ----- rendering ------------------------------------------------------------
+
+function render() {
+  const counts = { active: 0, ending: 0, expired: 0, blocked: 0 };
+  data.users.forEach((user) => { counts[statusOf(user)] += 1; });
+  $("sActive").textContent = counts.active + counts.ending;
+  $("sEnding").textContent = counts.ending;
+  $("sExpired").textContent = counts.expired;
+  $("sBlocked").textContent = counts.blocked;
+
+  const query = $("search").value.trim().toLowerCase();
+  const digits = query.replace(/\D/g, "");
+  const rows = data.users
+    .filter((user) => {
+      const state = statusOf(user);
+      if (filter === "active" && !(state === "active" || state === "ending")) return false;
+      if (filter !== "all" && filter !== "active" && state !== filter) return false;
+      if (!query) return true;
+      return (user.name || "").toLowerCase().includes(query)
+        || (user.note || "").toLowerCase().includes(query)
+        || (digits && (user.phone || "").includes(digits));
+    })
+    .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
+  const body = $("rows");
+  body.innerHTML = "";
+  rows.forEach((user) => {
+    const state = statusOf(user);
+    const left = daysLeft(user.until);
+    const untilText = user.until
+      ? `${prettyDate(user.until)}${left !== null && left >= 0 ? ` · ${left === 0 ? "last day" : left + " days left"}` : ""}`
+      : "No end date";
+    const actions = el("div", { class: "actions" }, [
+      el("button", { class: "btn sm", type: "button", text: "Edit", onclick: () => openUser(user.id) }),
+      el("button", { class: "btn sm", type: "button", text: "+1 month", onclick: () => extend(user.id, "1m") }),
+      el("button", { class: "btn sm", type: "button", text: "+1 year", onclick: () => extend(user.id, "1y") }),
+      el("button", {
+        class: "btn sm " + (user.status === "blocked" ? "" : "danger"), type: "button",
+        text: user.status === "blocked" ? "Unblock" : "Block", onclick: () => toggleBlock(user.id)
+      }),
+      el("button", { class: "btn sm ghost danger", type: "button", text: "Delete", onclick: () => removeUser(user.id) })
+    ]);
+    body.appendChild(el("tr", {}, [
+      el("td", { "data-label": "Name" }, [el("b", { text: user.name || "—" })]),
+      el("td", { "data-label": "Phone", text: prettyPhone(user.phone) }),
+      el("td", { "data-label": "Plan", text: user.plan || "—" }),
+      el("td", { "data-label": "Until", text: untilText }),
+      el("td", { "data-label": "Status" }, [el("span", { class: "badge " + state, text: STATUS_TEXT[state] })]),
+      el("td", { "data-label": "Note", class: "muted", text: user.note || "" }),
+      el("td", {}, [actions])
+    ]));
+  });
+  const empty = $("empty");
+  empty.classList.toggle("hidden", rows.length > 0);
+  empty.textContent = data.users.length
+    ? "No customers match this search."
+    : "No numbers yet. Click “+ Add number” to let someone use TG Auto Poster.";
+}
+
+// ----- actions ------------------------------------------------------------
+
+function openUser(id) {
+  editingId = id;
+  const user = data.users.find((item) => item.id === id) || {};
+  $("userTitle").textContent = id ? "Edit customer" : "Add number";
+  $("uName").value = user.name || "";
+  const code = COUNTRIES.map((c) => c[1]).filter((c) => (user.phone || "").startsWith(c)).sort((a, b) => b.length - a.length)[0] || "+91";
+  $("uCode").value = code;
+  $("uNumber").value = user.phone ? user.phone.slice(code.length) : "";
+  $("uPlan").value = user.plan || "Pro";
+  $("uForever").checked = id ? !user.until : false;
+  $("uUntil").value = id ? (user.until || "") : addPeriod("", "1m");
+  $("uUntil").disabled = $("uForever").checked;
+  $("uNote").value = user.note || "";
+  $("userError").classList.add("hidden");
+  $("userDialog").showModal();
+  setTimeout(() => $("uName").focus(), 30);
+}
+
+async function submitUser(event) {
+  event.preventDefault();
+  const phone = normalize($("uCode").value, $("uNumber").value);
+  const error = $("userError");
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 8 || digits.length > 15) {
+    error.textContent = "That phone number does not look complete. Check the country code and the digits.";
+    error.classList.remove("hidden");
+    return;
+  }
+  const clash = data.users.find((user) => user.phone === phone && user.id !== editingId);
+  if (clash) {
+    error.textContent = `This number is already added for ${clash.name}.`;
+    error.classList.remove("hidden");
+    return;
+  }
+  if (!$("uForever").checked && !$("uUntil").value) {
+    error.textContent = "Choose the last day of access, or tick “No end date”.";
+    error.classList.remove("hidden");
+    return;
+  }
+  const values = {
+    name: $("uName").value.trim(),
+    phone,
+    plan: $("uPlan").value,
+    until: $("uForever").checked ? null : $("uUntil").value,
+    note: $("uNote").value.trim()
+  };
+  const before = JSON.stringify(data);
+  if (editingId) {
+    Object.assign(data.users.find((user) => user.id === editingId), values);
+  } else {
+    const id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())).slice(0, 8);
+    data.users.push({ id, ...values, status: "active", added: isoDate(today()) });
+  }
+  const button = $("userSave");
+  busy(button, true);
+  try {
+    await save(editingId ? `Update ${values.name}` : `Add ${values.name}`);
+    $("userDialog").close();
+    render();
+  } catch (problem) {
+    data = JSON.parse(before);
+    error.textContent = problem.message;
+    error.classList.remove("hidden");
+  } finally {
+    busy(button, false);
+  }
+}
+
+async function change(id, mutate, message) {
+  const before = JSON.stringify(data);
+  const user = data.users.find((item) => item.id === id);
+  if (!user) return;
+  mutate(user);
+  render();
+  try {
+    await save(message(user));
+  } catch (problem) {
+    data = JSON.parse(before);
+    render();
+    toast(problem.message);
+  }
+}
+
+function extend(id, code) {
+  change(id, (user) => { user.until = addPeriod(user.until, code); if (user.status === "blocked") user.status = "active"; },
+    (user) => `Extend ${user.name} to ${user.until}`);
+}
+
+function toggleBlock(id) {
+  const user = data.users.find((item) => item.id === id);
+  if (!user) return;
+  if (user.status !== "blocked" && !confirm(`Block ${user.name}? Their app stops working within a few hours.`)) return;
+  change(id, (item) => { item.status = item.status === "blocked" ? "active" : "blocked"; },
+    (item) => `${item.status === "blocked" ? "Block" : "Unblock"} ${item.name}`);
+}
+
+async function removeUser(id) {
+  const user = data.users.find((item) => item.id === id);
+  if (!user || !confirm(`Delete ${user.name} (${prettyPhone(user.phone)})? They will not be able to use the app.`)) return;
+  const before = JSON.stringify(data);
+  data.users = data.users.filter((item) => item.id !== id);
+  render();
+  try {
+    await save(`Delete ${user.name}`);
+  } catch (problem) {
+    data = JSON.parse(before);
+    render();
+    toast(problem.message);
+  }
+}
+
+function openSettings() {
+  $("sSupport").value = data.settings.support || "";
+  $("sMessage").value = data.settings.message || "";
+  $("sMinVersion").value = data.settings.min_version || "";
+  $("settingsDialog").showModal();
+}
+
+async function submitSettings(event) {
+  event.preventDefault();
+  const before = JSON.stringify(data);
+  data.settings.support = $("sSupport").value.trim();
+  data.settings.message = $("sMessage").value.trim();
+  data.settings.min_version = $("sMinVersion").value.trim();
+  data.settings.timezone = data.settings.timezone || "Asia/Kolkata";
+  try {
+    await save("Update settings");
+    $("settingsDialog").close();
+  } catch (problem) {
+    data = JSON.parse(before);
+    toast(problem.message);
+  }
+}
+
+// ----- start --------------------------------------------------------------
+
+function showLogin(message) {
+  $("loginView").classList.remove("hidden");
+  $("mainView").classList.add("hidden");
+  ["settingsBtn", "logoutBtn", "publish"].forEach((id) => $(id).classList.add("hidden"));
+  $("repo").value = repo;
+  const box = $("loginError");
+  box.textContent = message || "";
+  box.classList.toggle("hidden", !message);
+}
+
+async function enter() {
+  try {
+    await load();
+  } catch (error) {
+    showLogin(error.status === 401 || error.status === 403 || error.status === 404
+      ? "GitHub did not accept that key or repository. Check both, and that the key can read the repository."
+      : "Could not reach GitHub. Check your internet and try again.");
+    return;
+  }
+  $("loginView").classList.add("hidden");
+  $("mainView").classList.remove("hidden");
+  ["settingsBtn", "logoutBtn"].forEach((id) => $(id).classList.remove("hidden"));
+  render();
+  publishStatus();
+}
+
+$("uCode").append(...COUNTRIES.map(([name, code]) => el("option", { value: code, text: `${name} (${code})` })));
+$("loginForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  repo = $("repo").value.trim().replace(/^https:\/\/github\.com\//, "").replace(/\/$/, "");
+  token = $("token").value.trim();
+  store.set("tgap.repo", repo);
+  store.set("tgap.token", token);
+  enter();
+});
+$("logoutBtn").addEventListener("click", () => { store.clear(); token = ""; showLogin(); });
+$("addBtn").addEventListener("click", () => openUser(null));
+$("settingsBtn").addEventListener("click", openSettings);
+$("userForm").addEventListener("submit", submitUser);
+$("settingsForm").addEventListener("submit", submitSettings);
+$("search").addEventListener("input", render);
+$("uForever").addEventListener("change", () => { $("uUntil").disabled = $("uForever").checked; });
+document.querySelectorAll(".chips button").forEach((chip) => chip.addEventListener("click", () => {
+  $("uForever").checked = false;
+  $("uUntil").disabled = false;
+  $("uUntil").value = addPeriod("", chip.dataset.add);
+}));
+document.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", () => button.closest("dialog").close()));
+$("filters").addEventListener("click", (event) => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  filter = button.dataset.f;
+  document.querySelectorAll("#filters button").forEach((item) => item.classList.toggle("on", item === button));
+  render();
+});
+
+if (token && repo) enter(); else showLogin();
+</script>
+</body>
+</html>

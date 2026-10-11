@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TG Auto Poster</title>
+<meta name="description" content="Schedule your product photo posts to your Telegram channel or group. TG Auto Poster sends them for you.">
+<style>
+:root { --bg: #F4F6FA; --surface: #FFFFFF; --border: #E3E8EF; --text: #0F172A; --muted: #64748B; --primary: #1F6FB2; --primary-soft: #E7F0FA; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0F141B; --surface: #161D27; --border: #263142; --text: #E6EDF5; --muted: #8A99AD; --primary: #3B8EDB; --primary-soft: #17304A; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 "Segoe UI", system-ui, -apple-system, sans-serif; }
+.hero { background: linear-gradient(135deg, #1F6FB2, #123F6B); color: #fff; padding: 64px 16px 72px; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; margin-bottom: 40px; }
+.logo { width: 36px; height: 36px; border-radius: 9px; background: #fff; display: grid; place-items: center; }
+h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0 0 14px; max-width: 640px; }
+.hero p { color: rgba(255, 255, 255, .85); font-size: 18px; max-width: 600px; margin: 0 0 28px; }
+.btn { display: inline-block; padding: 12px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; }
+.btn.light { background: #fff; color: #1F6FB2; }
+.btn.outline { border: 1px solid rgba(255, 255, 255, .6); color: #fff; margin-left: 8px; }
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: -40px auto 48px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
+.card h3 { margin: 0 0 6px; font-size: 17px; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.icon { width: 40px; height: 40px; border-radius: 20px; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; margin-bottom: 12px; font-size: 20px; }
+section { margin-bottom: 48px; }
+h2 { font-size: 24px; margin: 0 0 12px; }
+.muted { color: var(--muted); }
+footer { border-top: 1px solid var(--border); padding: 24px 16px; color: var(--muted); font-size: 14px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="wrap">
+    <div class="brand"><span class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="#1F6FB2"><path d="M3 12.5 20 4l-3.5 16-5-6.5L3 12.5Z"/></svg></span>TG Auto Poster</div>
+    <h1>Post to your Telegram channel on autopilot</h1>
+    <p>Add your product photos and a message, pick a time, and TG Auto Poster sends them for you. Plan days ahead, repeat every day, and reuse your best products.</p>
+    <a class="btn light" href="#download">Download for Windows</a>
+    <a class="btn outline" href="#access">Get access</a>
+  </div>
+</div>
+<div class="wrap">
+  <div class="features">
+    <div class="card"><div class="icon">🗓️</div><h3>Plan posts ahead</h3><p>Today, tomorrow, every day, or on the dates you choose. One click for your usual times.</p></div>
+    <div class="card"><div class="icon">📦</div><h3>Reuse your products</h3><p>Save a product once with its photos and message, then post it again in two clicks.</p></div>
+    <div class="card"><div class="icon">🔒</div><h3>Private and safe</h3><p>Runs on your own computer. Your Telegram login, posts, and photos never leave it.</p></div>
+  </div>
+  <section id="download">
+    <h2>Download</h2>
+    <p class="muted">TG Auto Poster runs on Windows 10 and 11. The download link is shared with activated customers.</p>
+  </section>
+  <section id="access">
+    <h2>Get access</h2>
+    <p class="muted">TG Auto Poster works only for activated phone numbers. Contact us with the Telegram number you want to use, and we will activate it.</p>
+  </section>
+</div>
+<footer>© TG Auto Poster · You are responsible for what you post. Follow Telegram's Terms of Service.</footer>
+</body>
+</html>
