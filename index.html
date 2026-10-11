@@ -21,6 +21,10 @@ h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0 0 14px; max
 .btn { display: inline-block; padding: 12px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; }
 .btn.light { background: #fff; color: #1F6FB2; }
 .btn.outline { border: 1px solid rgba(255, 255, 255, .6); color: #fff; margin-left: 8px; }
+.btn.primary { background: var(--primary); color: #fff; }
+.steps { margin-top: 16px; }
+.steps ol { margin: 8px 0 0; padding-left: 20px; color: var(--muted); }
+.steps li { margin-bottom: 6px; }
 .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: -40px auto 48px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
 .card h3 { margin: 0 0 6px; font-size: 17px; }
@@ -38,7 +42,7 @@ footer { border-top: 1px solid var(--border); padding: 24px 16px; color: var(--m
     <div class="brand"><span class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="#1F6FB2"><path d="M3 12.5 20 4l-3.5 16-5-6.5L3 12.5Z"/></svg></span>TG Auto Poster</div>
     <h1>Post to your Telegram channel on autopilot</h1>
     <p>Add your product photos and a message, pick a time, and TG Auto Poster sends them for you. Plan days ahead, repeat every day, and reuse your best products.</p>
-    <a class="btn light" href="#download">Download for Windows</a>
+    <a class="btn light" href="https://github.com/Myself7802/tg-auto-poster-site/releases/latest/download/TGAutoPoster-Setup.exe">Download for Windows</a>
     <a class="btn outline" href="#access">Get access</a>
   </div>
 </div>
@@ -50,11 +54,21 @@ footer { border-top: 1px solid var(--border); padding: 24px 16px; color: var(--m
   </div>
   <section id="download">
     <h2>Download</h2>
-    <p class="muted">TG Auto Poster runs on Windows 10 and 11. The download link is shared with activated customers.</p>
+    <p class="muted">For Windows 10 and 11 (64-bit). About 45 MB.</p>
+    <p><a class="btn primary" href="https://github.com/Myself7802/tg-auto-poster-site/releases/latest/download/TGAutoPoster-Setup.exe">Download TG Auto Poster</a></p>
+    <div class="card steps">
+      <h3>How to install</h3>
+      <ol>
+        <li>Open the downloaded <b>TGAutoPoster-Setup.exe</b>.</li>
+        <li>If Windows shows <b>“Windows protected your PC”</b>, click <b>More info</b>, then <b>Run anyway</b>. This appears because the app is new, not because anything is wrong.</li>
+        <li>Click <b>Next</b> until it finishes, then open TG Auto Poster.</li>
+        <li>Log in with your activated Telegram number.</li>
+      </ol>
+    </div>
   </section>
   <section id="access">
     <h2>Get access</h2>
-    <p class="muted">TG Auto Poster works only for activated phone numbers. Contact us with the Telegram number you want to use, and we will activate it.</p>
+    <p class="muted">TG Auto Poster works only for activated phone numbers. Message us on <b>WhatsApp +91 96629 83301</b> with the Telegram number you want to use, and we will activate it.</p>
   </section>
 </div>
 <footer>© TG Auto Poster · You are responsible for what you post. Follow Telegram's Terms of Service.</footer>
