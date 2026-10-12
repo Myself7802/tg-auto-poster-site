@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TG Auto Poster</title>
+<script>
+// The website moved to telepilot.vercel.app. GitHub still serves the files apps read (access.json).
+if (location.hostname === "myself7802.github.io") {
+  location.replace("https://telepilot.vercel.app" + location.pathname.replace(/^\/tg-auto-poster-site/, "") + location.search + location.hash);
+}
+</script>
 <meta name="description" content="Schedule your product photo posts to your Telegram channel or group. TG Auto Poster sends them for you.">
 <style>
 :root { --bg: #F4F6FA; --surface: #FFFFFF; --border: #E3E8EF; --text: #0F172A; --muted: #64748B; --primary: #1F6FB2; --primary-soft: #E7F0FA; }

@@ -4,8 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.github.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.github.com https://myself7802.github.io; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:">
 <title>TG Auto Poster Admin</title>
+<script>
+// The website moved to telepilot.vercel.app. GitHub still serves the files apps read (access.json).
+if (location.hostname === "myself7802.github.io") {
+  location.replace("https://telepilot.vercel.app" + location.pathname.replace(/^\/tg-auto-poster-site/, "") + location.search + location.hash);
+}
+</script>
 <style>
 :root {
   --bg: #F4F6FA; --surface: #FFFFFF; --surface2: #F8FAFC; --border: #E3E8EF; --border-strong: #CBD3DE;
@@ -256,6 +262,7 @@ const COUNTRIES = [
 const $ = (id) => document.getElementById(id);
 const SITE_REPO = "Myself7802/tg-auto-poster-site";
 const VAULT_PATH = "admin/vault.json";
+const VAULT_URL = "https://myself7802.github.io/tg-auto-poster-site/admin/vault.json";
 // The unlocked key lives only in this tab (or this device, if "keep me logged in" was ticked).
 const store = {
   get() {
@@ -323,7 +330,8 @@ async function sealVault(id, password, secret) {
 }
 
 async function fetchVault() {
-  const response = await fetch(`vault.json?t=${Date.now()}`, { cache: "no-store" });
+  // Always read the login file from GitHub, where "Change password" saves it.
+  const response = await fetch(`${VAULT_URL}?t=${Date.now()}`, { cache: "no-store" });
   if (!response.ok) throw new Error("vault missing");
   return response.json();
 }
