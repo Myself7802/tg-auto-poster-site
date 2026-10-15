@@ -1,25 +1,25 @@
 {
  "payload": {
   "version": 1,
-  "generated_at": "2026-10-15T10:35:35+00:00",
+  "generated_at": "2026-10-15T10:45:17+00:00",
   "timezone": "Asia/Kolkata",
-  "salt": "87a7cf7e9f3a1ac519be03cf8c32abba",
+  "salt": "8949375dac8c7931f5b34082c7b55ce2",
   "iterations": 200000,
   "support": "WhatsApp +91 96629 83301",
   "message": "",
   "min_version": "1.0.1",
   "users": {
-   "bb19f99c6dd944ebd37a887db5ccac16661a87fa22c0b766de474c8b8865de92": {
+   "12748ca03f2c769ef3c574a388951893485a47c9a755b7860be26d93781b1e2e": {
     "status": "active",
     "until": "2027-10-11",
     "plan": "Pro"
    },
-   "42d3ae2cb9f2ca87a6c04eda2fc3c7792df075f3b5bef688ed37196428e840cb": {
+   "a72f9b81939c66d0302854da35d890a1a4a801e1855d4aa86bd0959574019280": {
     "status": "active",
     "until": "2027-10-15",
     "plan": "Pro"
    }
   }
  },
- "signature": "zEwBCifTX3oRDv2bquw24RRkgiQWYX2uN6AXfXzXPAJgKvv//ngMn1tqaBZhoRbjG3fIl+0l9cpjnYa9TqchAA=="
+ "signature": "rcyjvH8ZHua4juBh5BSebchNv64rKPZ5djyhhddV37eeceQH59irobuT0LplWuiPUk2y4l2tu7oD18reqUWXDQ=="
 }
