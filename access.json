@@ -1,30 +1,30 @@
 {
  "payload": {
   "version": 1,
-  "generated_at": "2026-11-20T07:38:31+00:00",
+  "generated_at": "2026-11-21T07:34:52+00:00",
   "timezone": "Asia/Kolkata",
-  "salt": "82547ab8caffc478849081b6b8c2c3f2",
+  "salt": "740ddcd0307d56ce77877d219d9321de",
   "iterations": 200000,
   "support": "WhatsApp +91 96629 83301",
   "message": "",
   "min_version": "1.0.1",
   "users": {
-   "0bb2b846b0a10f9de7abed30b6fd1ba773a04ee5071a44ea603abb6d842b0394": {
+   "9a2e06fa99fa235047a3a2e787a019c85efac085d03debc0f8981f8e5cb50c05": {
     "status": "active",
     "until": "2027-10-11",
     "plan": "Pro"
    },
-   "00464b9f648e9380766e165524a04c613ec9c0684181ce9b86a470369865c076": {
+   "422609b2d065780b0acf98b593da9f11f8e823d0429dd7349f05a496bf1029dc": {
     "status": "active",
     "until": "2027-10-15",
     "plan": "Pro"
    },
-   "c52be736fe505727a37a8794d6023ac82502bc11d88b4f0eeb812c2302a75f51": {
+   "7272236d070f4ac5600bafdff48c9b56b85fdf00a70e1ba36a0678b6db36f969": {
     "status": "active",
     "until": "2026-11-15",
     "plan": "Pro"
    }
   }
  },
- "signature": "ptjViSANZ0jSw4A9qhgtRujCBphdTa2VfYvnAkWcqJwdAZ5sH6LgOaLmkeonwrJdxcdIxuWEDYpeyS3g62WmAA=="
+ "signature": "o+DsDuypQpKop7zQ7P09FjHpbABWfOWdEXi0h7A2W6f+k8VjoqqCcGFK0UhFlDIkncfq2+BuAZySwviyZg21CQ=="
 }
